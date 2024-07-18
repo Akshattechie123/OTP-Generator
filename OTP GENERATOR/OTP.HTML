@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP GENERATOR</title>
+    <link rel="stylesheet" href="OTP.CSS".css">
+</head>
+<body>
+    <div class="container">
+        <h2>OTP VERIFICATION</h2>
+        <p>Please type verification code sent to <span id="mobile">000-000-0000</span></p>
+        <p>The OTP will expire in <span id="expire">30</span>s</p>
+
+        <div class="row">
+            <input type="number" maxlength="1" />
+            <input type="number" maxlength="1" />
+            <input type="number" maxlength="1" />
+            <input type="number" maxlength="1" />
+        </div>
+        <button type="button" disabled>Verify OTP</button>
+
+        <p>Didn't receive code? <a href="javascript:void(0)" id="request" onclick="generateOTPs()">Request Again</a></p>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll("input"),
+            button = document.querySelector("button"),
+            mobile = document.getElementById("mobile"),
+            expire = document.getElementById("expire");
+
+        let OTP = "", expireInterval = null;
+
+        function generateOTPs() {
+            OTP =
+                Math.floor(Math.random() * 10) +
+                "" +
+                Math.floor(Math.random() * 10) +
+                "" +
+                Math.floor(Math.random() * 10) +
+                "" +
+                Math.floor(Math.random() * 10);
+
+            alert("Your OTP is: " + OTP);
+
+            inputs[0].focus();
+            expire.innerText = 10;
+            expireInterval = setInterval(function () {
+                expire.innerText--;
+                if (expire.innerText === "0") {
+                    clearInterval(expireInterval);
+                }
+            }, 1000);
+        }
+
+        function clearOTPs() {
+            inputs.forEach((input, i) => {
+                input.value = "";
+                input.removeAttribute("disabled");
+            });
+            clearInterval(expireInterval);
+            expire.innerText = "0";
+            button.setAttribute("disabled", true);
+            button.classList.remove("active");
+        }
+
+        inputs.forEach((input, index) => {
+            input.addEventListener("input", function (e) {
+                const currentInput = e.target,
+                    currentIndex = index,
+                    nextInput = inputs[currentIndex + 1],
+                    prevInput = inputs[currentIndex - 1];
+
+                if (currentInput.value !== "") {
+                    if (nextInput) {
+                        nextInput.removeAttribute("disabled");
+                        nextInput.focus();
+                    }
+                }
+
+                if (!inputs[3].disabled && inputs[3].value !== "") {
+                    inputs[3].blur();
+                    button.removeAttribute("disabled");
+                    button.classList.add("active");
+                } else {
+                    button.setAttribute("disabled", true);
+                    button.classList.remove("active");
+                }
+            });
+
+            input.addEventListener("keydown", function (e) {
+                const currentInput = e.target,
+                    currentIndex = index,
+                    prevInput = inputs[currentIndex - 1];
+
+                if (e.key === "Backspace" && prevInput) {
+                    prevInput.focus();
+                    prevInput.value = "";
+                }
+            });
+        });
+
+        window.addEventListener("load", () => {
+            let x = prompt("Please Enter Your Mobile Number To Verify Your Account");
+            if (x) {
+                mobile.innerText = x;
+                generateOTPs();
+            }
+        });
+
+        button.addEventListener("click", () => {
+            let verify = "";
+            inputs.forEach((input) => {
+                verify += input.value;
+            });
+            if (verify === OTP) {
+                alert("Your account has been verified successfully");
+                clearOTPs();
+            } else {
+                alert("Your Verification Failed!");
+            }
+        });
+    </script>
+</body>
+</html>
